@@ -11,7 +11,8 @@ public class GameModel : SSActionManager, ISSActionCallback {
     private List<GameObject> PatrolSet;
     private List<int> PatrolLastDir;
 
-    private const float PERSON_SPEED = 0.05f;  //推荐0.05f / 0.1f
+    private const float PERSON_SPEED_NORMAL = 0.05f;  //推荐0.05f / 0.1f
+    private const float PERSON_SPEED_CATCHING = 0.06f;  //推荐0.05f / 0.1f
 
     void Awake() {
         PatrolFactory.getInstance().initItem(PatrolItem);
@@ -29,10 +30,12 @@ public class GameModel : SSActionManager, ISSActionCallback {
         base.Update();
     }
 
+    //生产英雄
     void genHero() {
         myHero = Instantiate(HeroItem);
     }
 
+    //生产巡逻兵
     void genPatrols() {
         PatrolSet = new List<GameObject>(6);
         PatrolLastDir = new List<int>(6);
@@ -42,8 +45,8 @@ public class GameModel : SSActionManager, ISSActionCallback {
             newPatrol.transform.position = posSet[i];
             newPatrol.name = "Patrol" + i;
             PatrolLastDir.Add(-2);
-            addRandomMovement(newPatrol, true);
             PatrolSet.Add(newPatrol);
+            addRandomMovement(newPatrol, true);
         }
     }
 
@@ -65,9 +68,12 @@ public class GameModel : SSActionManager, ISSActionCallback {
         }
     }
 
-    public void SSActionEvent(SSAction source, SSActionEventType eventType = SSActionEventType.Completed, int intParam = 0, string strParam = null, object objParam = null) {
-        //Debug.Log("SSActionEvent");
-        addRandomMovement(source.gameObject, true);
+    //动作结束后
+    public void SSActionEvent(SSAction source, SSActionEventType eventType = SSActionEventType.Completed, SSActionTargetType intParam = SSActionTargetType.Normal, string strParam = null, object objParam = null) {
+        if (intParam == SSActionTargetType.Normal)
+            addRandomMovement(source.gameObject, true);
+        else
+            addDirectMovement(source.gameObject);
     }
 
     //isActive说明是否主动变向（动作结束）
@@ -92,7 +98,7 @@ public class GameModel : SSActionManager, ISSActionCallback {
                 target += new Vector3(1, 0, 0);
                 break;
         }
-        addSingleMoving(sourceObj, target, PERSON_SPEED);
+        addSingleMoving(sourceObj, target, PERSON_SPEED_NORMAL, false);
     }
     int getIndexOfObj(GameObject sourceObj) {
         string name = sourceObj.name;
@@ -103,40 +109,91 @@ public class GameModel : SSActionManager, ISSActionCallback {
     int getRandomDirection(int index, bool isActive) {
         int randomDir = Random.Range(-1, 3);
         if (!isActive) {    //当碰撞时，不走同方向
-            //if (PatrolLastDir[index] == 0)
-            //    randomDir = 2;
-            //else if (PatrolLastDir[index] == 2)
-            //    randomDir = 0;
-            //else if (PatrolLastDir[index] == -1)
-            //    randomDir = 1;
-            //else if (PatrolLastDir[index] == 1)
-            //    randomDir = -1;
-            while (PatrolLastDir[index] == randomDir) {
+            while (PatrolLastDir[index] == randomDir || PatrolOutOfArea(index, randomDir)) {
                 randomDir = Random.Range(-1, 3);
             }
         }
-        else {    //当非碰撞时，不走反方向
+        else {              //当非碰撞时，不走反方向
             while (PatrolLastDir[index] == 0 && randomDir == 2 
                 || PatrolLastDir[index] == 2 && randomDir == 0
                 || PatrolLastDir[index] == 1 && randomDir == -1
-                || PatrolLastDir[index] == -1 && randomDir == 1) {
+                || PatrolLastDir[index] == -1 && randomDir == 1
+                || PatrolOutOfArea(index, randomDir)) {
                 randomDir = Random.Range(-1, 3);
             }
         }
         //Debug.Log(isActive + " isActive " + "PatrolLastDir " + PatrolLastDir[index] + " -- randomDir " + randomDir);
         return randomDir;
     }
-
-    public void addSingleMoving(GameObject sourceObj, Vector3 target, float speed) {
-        this.runAction(sourceObj, CCMoveToAction.CreateSSAction(target, speed), this);
+    //巡逻兵走出了自己的区域
+    bool PatrolOutOfArea(int index, int randomDir) {
+        Vector3 patrolPos = PatrolSet[index].transform.position;
+        float posX = patrolPos.x;
+        float posZ = patrolPos.z;
+        switch (index) {
+            case 0:
+                if (randomDir == 1 && posX + 1 > FenchLocation.FenchVertLeft
+                    || randomDir == 2 && posZ - 1 < FenchLocation.FenchHori)
+                    return true;
+                break;
+            case 1:
+                if (randomDir == 1 && posX + 1 > FenchLocation.FenchVertRight
+                    || randomDir == -1 && posX - 1 < FenchLocation.FenchVertLeft
+                    || randomDir == 2 && posZ - 1 < FenchLocation.FenchHori)
+                    return true;
+                break;
+            case 2:
+                if (randomDir == -1 && posX - 1 < FenchLocation.FenchVertRight
+                    || randomDir == 2 && posZ - 1 < FenchLocation.FenchHori)
+                    return true;
+                break;
+            case 3:
+                if (randomDir == 1 && posX + 1 > FenchLocation.FenchVertLeft
+                    || randomDir == 0 && posZ + 1 > FenchLocation.FenchHori)
+                    return true;
+                break;
+            case 4:
+                if (randomDir == 1 && posX + 1 > FenchLocation.FenchVertRight
+                    || randomDir == -1 && posX - 1 < FenchLocation.FenchVertLeft
+                    || randomDir == 0 && posZ + 1 > FenchLocation.FenchHori)
+                    return true;
+                break;
+            case 5:
+                if (randomDir == -1 && posX - 1 < FenchLocation.FenchVertRight
+                    || randomDir == 0 && posZ + 1 > FenchLocation.FenchHori)
+                    return true;
+                break;
+        }
+        return false;
     }
 
-    public void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed) {
+    //追捕hero
+    public void addDirectMovement(GameObject sourceObj) {
+        int index = getIndexOfObj(sourceObj);
+        PatrolLastDir[index] = -2;
+
+        sourceObj.transform.LookAt(sourceObj.transform);
+        Vector3 oriTarget = myHero.transform.position - sourceObj.transform.position;
+        Vector3 target = new Vector3(oriTarget.x / 4.0f, 0, oriTarget.z / 4.0f);
+        target += sourceObj.transform.position;
+        //Debug.Log("addDirectMovement: " + target);
+        addSingleMoving(sourceObj, target, PERSON_SPEED_CATCHING, true);
+    }
+
+    public void addSingleMoving(GameObject sourceObj, Vector3 target, float speed, bool isCatching) {
+        this.runAction(sourceObj, CCMoveToAction.CreateSSAction(target, speed, isCatching), this);
+    }
+
+    public void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed, bool isCatching) {
         List<SSAction> acList = new List<SSAction>();
         for (int i = 0; i < target.Length; i++) {
-            acList.Add(CCMoveToAction.CreateSSAction(target[i], speed[i]));
+            acList.Add(CCMoveToAction.CreateSSAction(target[i], speed[i], isCatching));
         }
         CCSequeneActions MoveSeq = CCSequeneActions.CreateSSAction(acList);
         this.runAction(sourceObj, MoveSeq, this);
+    }
+
+    public int getHeroStandOnArea() {
+        return myHero.GetComponent<HeroStatus>().standOnArea;
     }
 }

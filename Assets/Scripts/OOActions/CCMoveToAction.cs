@@ -5,11 +5,13 @@ using UnityEngine;
 public class CCMoveToAction: SSAction {
     public Vector3 target;
     public float speed;
+    public bool isCatching;    //判定此动作是否为追捕（与原来不同）
 
-    public static CCMoveToAction CreateSSAction(Vector3 _target, float _speed) {
+    public static CCMoveToAction CreateSSAction(Vector3 _target, float _speed, bool _isCatching) {
         CCMoveToAction action = ScriptableObject.CreateInstance<CCMoveToAction>();
         action.target = _target;
         action.speed = _speed;
+        action.isCatching = _isCatching;
         return action;
     }
 
@@ -21,7 +23,10 @@ public class CCMoveToAction: SSAction {
         this.transform.position = Vector3.MoveTowards(this.transform.position, target, speed);
         if (this.transform.position == target) {
             this.destroy = true;
-            this.callBack.SSActionEvent(this);
+            if (!isCatching)
+                this.callBack.SSActionEvent(this);
+            else
+                this.callBack.SSActionEvent(this, SSActionEventType.Completed, SSActionTargetType.Catching);
         }
     }
 }

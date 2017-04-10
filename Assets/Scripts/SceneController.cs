@@ -12,9 +12,9 @@ namespace Com.Patrols {
     }
 
     public class FenchLocation {
-        public const float FenchHori = -18.0f;
-        public const float FenchVertLeft = -12.6f;
-        public const float FenchVertRight = -6.5f;
+        public const float FenchHori = 12.42f;
+        public const float FenchVertLeft = -3.0f;
+        public const float FenchVertRight = 3.0f;
     }
 
     public interface IUserAction {
@@ -23,13 +23,19 @@ namespace Com.Patrols {
 
     public interface IAddAction {
         void addRandomMovement(GameObject sourceObj, bool isActive);
-        void addSingleMoving(GameObject sourceObj, Vector3 target, float speed);
-        void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed);
+        void addDirectMovement(GameObject sourceObj);
     }
 
-    public class SceneController : System.Object, IUserAction, IAddAction {
+    public interface IGameStatusOp {
+        int getHeroStandOnArea();
+        void heroEscapeAndScore();
+        void patrolHitHeroAndGameover();
+    }
+
+    public class SceneController : System.Object, IUserAction, IAddAction, IGameStatusOp {
         private static SceneController instance;
         private GameModel myGameModel;
+        private GameEventManager myGameEventManager;
 
         public static SceneController getInstance() {
             if (instance == null)
@@ -43,6 +49,12 @@ namespace Com.Patrols {
             }
         }
 
+        internal void setGameEventManager(GameEventManager _myGameEventManager) {
+            if (myGameEventManager == null) {
+                myGameEventManager = _myGameEventManager;
+            }
+        }
+
         /*********************实现IUserAction接口*********************/
         public void heroMove(int dir) {
             myGameModel.heroMove(dir);
@@ -53,12 +65,21 @@ namespace Com.Patrols {
             myGameModel.addRandomMovement(sourceObj, isActive);
         }
 
-        public void addSingleMoving(GameObject sourceObj, Vector3 target, float speed) {
-            myGameModel.addSingleMoving(sourceObj, target, speed);
+        public void addDirectMovement(GameObject sourceObj) {
+            myGameModel.addDirectMovement(sourceObj);
         }
 
-        public void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed) {
-            myGameModel.addCombinedMoving(sourceObj, target, speed);
+        /*********************实现IGameStatusOp接口*********************/
+        public int getHeroStandOnArea() {
+            return myGameModel.getHeroStandOnArea();
+        }
+
+        public void heroEscapeAndScore() {
+
+        }
+
+        public void patrolHitHeroAndGameover() {
+
         }
     }
 }

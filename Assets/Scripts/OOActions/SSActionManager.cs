@@ -36,18 +36,12 @@ public class SSActionManager : MonoBehaviour {
     }
 
     public void runAction(GameObject gameObj, SSAction action, ISSActionCallback manager) {
-        //先把该对象现有的动作销毁
+        //先把该对象现有的动作销毁（与原来不同部分）
         for (int i = 0; i < waitingAdd.Count; i++) {
             if (waitingAdd[i].gameObject.Equals(gameObj)) {
                 SSAction ac = waitingAdd[i];
                 waitingAdd.RemoveAt(i);
                 i--;
-                DestroyObject(ac);
-            }
-        }
-        foreach (SSAction ac in waitingAdd) {
-            if (ac.gameObject.Equals(gameObj)) {
-                waitingAdd.Remove(ac);
                 DestroyObject(ac);
             }
         }

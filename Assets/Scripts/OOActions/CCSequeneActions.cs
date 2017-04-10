@@ -34,8 +34,8 @@ public class CCSequeneActions : SSAction, ISSActionCallback {
 
     //提供给子动作回调，提醒动作序列执行下一个子动作
     public void SSActionEvent(SSAction source, 
-        SSActionEventType eventType = SSActionEventType.Completed, 
-        int intParam = 0, string strParam = null, object objParam = null) {
+        SSActionEventType eventType = SSActionEventType.Completed,
+        SSActionTargetType intParam = SSActionTargetType.Normal, string strParam = null, object objParam = null) {
 
         source.destroy = false;
         this.subActionIndex++;

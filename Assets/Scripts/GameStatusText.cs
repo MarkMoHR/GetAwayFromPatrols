@@ -37,11 +37,14 @@ public class GameStatusText : MonoBehaviour {
     }
 
     void gameScore() {
-        score++;
-        this.gameObject.GetComponent<Text>().text = "Score: " + score;
-    }
+        if (textType == 0) {
+            score++;
+            this.gameObject.GetComponent<Text>().text = "Score: " + score;
+        }
+    } 
 
     void gameOver() {
-        this.gameObject.GetComponent<Text>().text = "Game Over!";
+        if (textType == 1)
+            this.gameObject.GetComponent<Text>().text = "Game Over!";
     }
 }

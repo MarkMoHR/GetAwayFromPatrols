@@ -35,6 +35,7 @@ public class PatrolBehaviour : MonoBehaviour {
         return result;
     }
 
+    //检测进入自己区域的hero
     void checkNearByHero () {
         if (gameStatusOp.getHeroStandOnArea() == ownIndex) {    //只有当走进自己的区域
             if (!isCatching) {
@@ -52,12 +53,14 @@ public class PatrolBehaviour : MonoBehaviour {
     }
 
     void OnCollisionStay(Collision e) {
+        //撞击围栏，选择下一个点移动
         if (e.gameObject.name.Contains("Patrol") || e.gameObject.name.Contains("fence")
             || e.gameObject.tag.Contains("FenceAround")) {
-            //Debug.Log(this.gameObject.name + " : " + e.gameObject.name);
             isCatching = false;
             addAction.addRandomMovement(this.gameObject, false);
         }
+
+        //撞击hero，游戏结束
         if (e.gameObject.name.Contains("Hero")) {
             gameStatusOp.patrolHitHeroAndGameover();
             Debug.Log("Game Over!");

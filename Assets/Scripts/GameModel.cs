@@ -4,10 +4,10 @@ using UnityEngine;
 using Com.Patrols;
 
 public class GameModel : SSActionManager, ISSActionCallback {
-    public GameObject PatrolItem, HeroItem;
+    public GameObject PatrolItem, HeroItem, sceneModelItem, canvasItem;
 
     private SceneController scene;
-    private GameObject myHero;
+    private GameObject myHero, sceneModel, canvasAndText;
     private List<GameObject> PatrolSet;
     private List<int> PatrolLastDir;
 
@@ -24,6 +24,8 @@ public class GameModel : SSActionManager, ISSActionCallback {
 
         genHero();
         genPatrols();
+        sceneModel = Instantiate(sceneModelItem);
+        canvasAndText = Instantiate(canvasItem);
     }
 
     protected new void Update() {
@@ -50,6 +52,7 @@ public class GameModel : SSActionManager, ISSActionCallback {
         }
     }
 
+    //hero移动
     public void heroMove(int dir) {
         myHero.transform.rotation = Quaternion.Euler(new Vector3(0, dir * 90, 0));
         switch (dir) {
@@ -125,7 +128,7 @@ public class GameModel : SSActionManager, ISSActionCallback {
         //Debug.Log(isActive + " isActive " + "PatrolLastDir " + PatrolLastDir[index] + " -- randomDir " + randomDir);
         return randomDir;
     }
-    //巡逻兵走出了自己的区域
+    //判定巡逻兵走出了自己的区域
     bool PatrolOutOfArea(int index, int randomDir) {
         Vector3 patrolPos = PatrolSet[index].transform.position;
         float posX = patrolPos.x;
@@ -180,11 +183,11 @@ public class GameModel : SSActionManager, ISSActionCallback {
         addSingleMoving(sourceObj, target, PERSON_SPEED_CATCHING, true);
     }
 
-    public void addSingleMoving(GameObject sourceObj, Vector3 target, float speed, bool isCatching) {
+    void addSingleMoving(GameObject sourceObj, Vector3 target, float speed, bool isCatching) {
         this.runAction(sourceObj, CCMoveToAction.CreateSSAction(target, speed, isCatching), this);
     }
 
-    public void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed, bool isCatching) {
+    void addCombinedMoving(GameObject sourceObj, Vector3[] target, float[] speed, bool isCatching) {
         List<SSAction> acList = new List<SSAction>();
         for (int i = 0; i < target.Length; i++) {
             acList.Add(CCMoveToAction.CreateSSAction(target[i], speed[i], isCatching));
@@ -193,6 +196,7 @@ public class GameModel : SSActionManager, ISSActionCallback {
         this.runAction(sourceObj, MoveSeq, this);
     }
 
+    //获取hero所在区域
     public int getHeroStandOnArea() {
         return myHero.GetComponent<HeroStatus>().standOnArea;
     }

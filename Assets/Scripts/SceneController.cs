@@ -75,11 +75,11 @@ namespace Com.Patrols {
         }
 
         public void heroEscapeAndScore() {
-
+            myGameEventManager.heroEscapeAndScore();
         }
 
         public void patrolHitHeroAndGameover() {
-
+            myGameEventManager.patrolHitHeroAndGameover();
         }
     }
 }

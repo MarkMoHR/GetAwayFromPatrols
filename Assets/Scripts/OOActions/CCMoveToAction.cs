@@ -23,7 +23,7 @@ public class CCMoveToAction: SSAction {
         this.transform.position = Vector3.MoveTowards(this.transform.position, target, speed);
         if (this.transform.position == target) {
             this.destroy = true;
-            if (!isCatching)
+            if (!isCatching)    //根据不同的动作类型回调函数传递不同的参数
                 this.callBack.SSActionEvent(this);
             else
                 this.callBack.SSActionEvent(this, SSActionEventType.Completed, SSActionTargetType.Catching);

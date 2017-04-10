@@ -4,7 +4,7 @@ using UnityEngine;
 using Com.Patrols;
 
 //----------------------------------
-// 此脚本加在主人公上
+// 此脚本加在主人公hero上
 //----------------------------------
 
 public class HeroStatus : MonoBehaviour {
@@ -18,6 +18,7 @@ public class HeroStatus : MonoBehaviour {
         modifyStandOnArea();
 	}
 
+    //检测所在区域
     void modifyStandOnArea() {
         float posX = this.gameObject.transform.position.x;
         float posZ = this.gameObject.transform.position.z;

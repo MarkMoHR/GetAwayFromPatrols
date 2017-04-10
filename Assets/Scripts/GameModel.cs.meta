@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2a27c6f4dc4ba3b41a612181c599d80b
+timeCreated: 1491725024
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - PatrolItem: {fileID: 1959644049406380, guid: 0b6a7bb3f18b067438f7db52cbb219d9,
+      type: 2}
+  - HeroItem: {fileID: 1145044986486434, guid: 228d0b36bcbca4e47a431ba734684c6b, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

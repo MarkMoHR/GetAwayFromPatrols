@@ -11,8 +11,8 @@ public class GameModel : SSActionManager, ISSActionCallback {
     private List<GameObject> PatrolSet;
     private List<int> PatrolLastDir;
 
-    private const float PERSON_SPEED_NORMAL = 0.05f;  //推荐0.05f / 0.1f
-    private const float PERSON_SPEED_CATCHING = 0.06f;  //推荐0.05f / 0.1f
+    private const float PERSON_SPEED_NORMAL = 0.05f;
+    private const float PERSON_SPEED_CATCHING = 0.06f;
 
     void Awake() {
         PatrolFactory.getInstance().initItem(PatrolItem);
@@ -72,7 +72,8 @@ public class GameModel : SSActionManager, ISSActionCallback {
     }
 
     //动作结束后
-    public void SSActionEvent(SSAction source, SSActionEventType eventType = SSActionEventType.Completed, SSActionTargetType intParam = SSActionTargetType.Normal, string strParam = null, object objParam = null) {
+    public void SSActionEvent(SSAction source, SSActionEventType eventType = SSActionEventType.Completed, 
+        SSActionTargetType intParam = SSActionTargetType.Normal, string strParam = null, object objParam = null) {
         if (intParam == SSActionTargetType.Normal)
             addRandomMovement(source.gameObject, true);
         else
